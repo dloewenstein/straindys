@@ -53,7 +53,7 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
 
     group_by_(id_variable) %>%
 
-    mutate_at(.cols = vars(contains("strain")), .funs = funs(ifelse(. == min(.), time, NA))) %>%
+    mutate_at(.cols = vars(contains("strain")), .funs = funs(ifelse(. == min(.) & . <0, time, NA))) %>%
 
     summarise_at(.cols = vars(contains("strain")), min, na.rm = TRUE) %>%
 
@@ -67,7 +67,7 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
 
       group_by_(id_variable) %>%
 
-      mutate_at(.cols = vars(contains("strain")), .funs = funs(ifelse(. == max(.), time, NA))) %>%
+      mutate_at(.cols = vars(contains("strain")), .funs = funs(ifelse(. == max(.) & . > 0, time, NA))) %>%
 
       summarise_at(.cols = vars(contains("strain")), min, na.rm = TRUE) %>%
 
