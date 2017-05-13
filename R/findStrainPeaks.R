@@ -10,6 +10,22 @@
 #' @examples findStrainPeaks(straindata, position.firstStrainColumn = 3)
 findStrainPeaks <- function (straindata, position.firstStraincolumn) {
 
+  require(dplyr)
+
+  require(lazyeval)
+
+  if (!requireNamespace("dplyr", quietly = TRUE)) {
+    stop("dplyr needed for this function to work. Please install/load it.",
+         call. = FALSE)
+  }
+
+
+  if (!requireNamespace("lazyeval", quietly = TRUE)) {
+    stop("lazyeval needed for this function to work. Please install/load it.",
+         call. = FALSE)
+  }
+
+
   endrow <- c(NA, rep(0, ncol(straindata)-1))
 
   straindata <- rbind(straindata, endrow)

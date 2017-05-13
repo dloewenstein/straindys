@@ -7,7 +7,7 @@ Maintainer: The package maintainer <loewenstein.daniel@gmail.com>
 Description: A grewing collection of tools to help faciliatate calculation of newly
     developed strain and dyssynchrony metrics. Tools both for global dyssynchrony
     as well as regional. Built for use with CMR FT, and the Medviso Segment software.
-License: No license.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1

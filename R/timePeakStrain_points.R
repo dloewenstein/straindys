@@ -21,6 +21,22 @@
 
 timePeakStrain_points <- function (x, strain, thresh, incr, position.firstStrainColumn) {
 
+  require(dplyr)
+
+  require(lazyeval)
+
+  if (!requireNamespace("dplyr", quietly = TRUE)) {
+    stop("dplyr needed for this function to work. Please install/load it.",
+         call. = FALSE)
+  }
+
+
+  if (!requireNamespace("lazyeval", quietly = TRUE)) {
+    stop("lazyeval needed for this function to work. Please install/load it.",
+         call. = FALSE)
+  }
+
+
   if (!incr >= 0)
     stop("increase has to be 0 or a positive percentagepoint expressed in decimals")
 

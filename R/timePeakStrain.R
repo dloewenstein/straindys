@@ -21,6 +21,21 @@
 
 timePeakStrain <- function (x, strain, thresh, incr, position.firstStrainColumn) {
 
+  require(dplyr)
+
+  require(lazyeval)
+
+  if (!requireNamespace("dplyr", quietly = TRUE)) {
+    stop("dplyr needed for this function to work. Please install/load it.",
+         call. = FALSE)
+  }
+
+
+  if (!requireNamespace("lazyeval", quietly = TRUE)) {
+    stop("lazyeval needed for this function to work. Please install/load it.",
+         call. = FALSE)
+  }
+
   if (!incr <= 0)
     stop("increase has to be 0 or a negative percentage expressed in decimals")
 
@@ -29,6 +44,8 @@ timePeakStrain <- function (x, strain, thresh, incr, position.firstStrainColumn)
 
   if (!is.data.frame(x))
     stop("x has to be of class dataframe")
+
+
 
   x <- findStrainPeaks(x, position.firstStrainColumn)
 

@@ -13,6 +13,22 @@
 
 timeMinStrain <- function (x, segment) {
 
+  require(dplyr)
+
+  require(lazyeval)
+
+  if (!requireNamespace("dplyr", quietly = TRUE)) {
+    stop("dplyr needed for this function to work. Please install/load it.",
+         call. = FALSE)
+  }
+
+
+  if (!requireNamespace("lazyeval", quietly = TRUE)) {
+    stop("lazyeval needed for this function to work. Please install/load it.",
+         call. = FALSE)
+  }
+
+
   # Uses the argument strain to create variables.
 
   strain_time <- paste(segment, "time", sep = "_")
