@@ -2,28 +2,22 @@
 % Please edit documentation in R/findStrainPeaks.R
 \name{findStrainPeaks}
 \alias{findStrainPeaks}
-\title{Find strain peaks using percentage criteria for circumferential/longitudinal strain}
+\title{Finds peaks and valleys in the strain dataframe}
 \usage{
-findStrainPeaks(x, strain, thresh, incr)
+findStrainPeaks(straindata, position.firstStraincolumn)
 }
 \arguments{
-\item{x}{dataframe containing the strain columns in a long format.}
+\item{straindata}{dataframe in longformat with separate column for each strain segment}
 
-\item{strain}{the strain variable you want to mutate, written inside "".}
-
-\item{thresh}{the minimum strain threshold value a valley has to reach to be
-considered.}
-
-\item{incr}{by how much must the strain increase between valley and the
-following peak.}
+\item{position.firstStraincolumn}{the index position of the first strain column}
 }
 \value{
-A dataframe with id and a straincolumn containing the time for the first peak
-fulfilling the criteria
+A dataframe with 2 new columns added for each strain segment indicating
+whether the corresponding strain value is a peak/valley or not
 }
 \description{
-Find strain peaks using percentage criteria for circumferential/longitudinal strain
+Finds peaks and valleys in the strain dataframe
 }
 \examples{
-findStrainPeaks(strain_data, "mas", thresh = 0.2, incr = -0.3)
+findStrainPeaks(straindata, position.firstStrainColumn = 3)
 }
