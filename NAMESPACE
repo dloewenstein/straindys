@@ -3,6 +3,6 @@
 export(cureStrain)
 export(cureSvd)
 export(findStrainPeaks)
-export(timeMinStrain)
+export(timeFirstPeak)
+export(timeFirstPeak_points)
 export(timePeakStrain)
-export(timePeakStrain_points)

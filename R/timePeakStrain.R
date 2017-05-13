@@ -1,25 +1,21 @@
 
-#' Find time to true strain peaks using percentage criteria for circumferential/longitudinal strain
+#' Find the time corresponding to the peak strain value for a segment
 #'
-#' @param x dataframe containing the strain columns in a long format.
-#' @param strain the strain variable you want to mutate, written inside "".
-#' @param thresh percentage of the peak strain value that a valley has to reach to be
-#' considered a true valley.
-#' @param incr percentage of the peak strain value by which the strain increase between valley and the
-#' following peak has to reach.
-#' @param position.firstStrainColumn the index position for the first strain segment in the dataframe
-#' @return A dataframe with id and a straincolumn containing the time for the first peak
-#' fulfilling the criteria
+#' @param data Dataframe with each strain segment in a separate column, the name
+#' of the strain columns must include "strain".
+#' @param id.column Name of the id column in quotes.
+#' @param time.column Name of the time column in quotes.
+#' @param RR.as.perc Logical parameter, if TRUE time will be presented as percent
+#' of heart cycle.
+#' @param radial.strain Logical parameter, set to TRUE if using radial strain.
+#'
+#' @return A dataframe with time to peak strain value for each patient and all
+#' segments.
 #' @export
 #'
-#' @examples
-#' timePeakStrain(strain_data,
-#' "mas",
-#' thresh = 0.2,
-#' incr = -0.3,
-#' position.firstStrainColumn = 3)
+#' @examples timeMinStrain(strain_data, "id", "time", RR.as.perc = TRUE)
 
-timePeakStrain <- function (x, strain, thresh, incr, position.firstStrainColumn) {
+timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, radial.strain = FALSE) {
 
   require(dplyr)
 
@@ -36,76 +32,48 @@ timePeakStrain <- function (x, strain, thresh, incr, position.firstStrainColumn)
          call. = FALSE)
   }
 
-  if (!incr <= 0)
-    stop("increase has to be 0 or a negative percentage expressed in decimals")
+  id_variable <- interp(~ a, a = as_name(id.column))
 
-  if (!thresh >= 0)
-    stop("thresh has to be 0 pr a positive percentage expressed in decimals")
+  time_variable <- interp(~a, a = as_name(time.column))
 
-  if (!is.data.frame(x))
-    stop("x has to be of class dataframe")
+  time_as_rr_perc <- interp(~ a/max(a), a = as_name(time.column))
+
+  if(RR.as.perc) {
+
+    data <- data %>%
+      group_by_(id_variable) %>%
+      mutate_(.dots = setNames(list(time_as_rr_perc), c(time.column))) %>%
+      ungroup()
+  }
+
+  if (!radial.strain) {
+  data <- data %>%
+
+    rename_(.dots = setNames(list(time_variable), c("time"))) %>%
+
+    group_by_(id_variable) %>%
+
+    mutate_at(.cols = vars(contains("strain")), .funs = funs(ifelse(. == min(.), time, NA))) %>%
+
+    summarise_at(.cols = vars(contains("strain")), min, na.rm = TRUE) %>%
+
+    ungroup()
+
+  } else {
+
+    data <- data %>%
+
+      rename_(.dots = setNames(list(time_variable), c("time"))) %>%
+
+      group_by_(id_variable) %>%
+
+      mutate_at(.cols = vars(contains("strain")), .funs = funs(ifelse(. == max(.), time, NA))) %>%
+
+      summarise_at(.cols = vars(contains("strain")), min, na.rm = TRUE) %>%
+
+      ungroup()
+  }
 
 
-
-  x <- findStrainPeaks(x, position.firstStrainColumn)
-
-# calculate the difference between a strain peak or valley and the
-# following element, since a valley can only be followed immediately
-# by a peak this ensures that each valley is compared to the first following peak.
-
-
-# creates variable names from the strain argument
-
-  peakvar <- paste(strain, "peak", sep = "_")
-  valleyvar <- paste(strain, "valley", sep = "_")
-  strainvar <- paste(strain, "strain", sep = "_")
-  timevar <- paste(strain, "time", sep = "_")
-
-# creates variable calls
-
-  peak <- interp(~ a, a = as.name(peakvar))
-  valley <- interp(~ b, b = as.name(valleyvar))
-  strain <- interp(~ c, c = as.name(strainvar))
-  straintime <- interp(~ a, a = as.name(timevar))
-
-# filters for all rows were peak or valley for the segment is true
-
-  peakvalley_true <- list(interp(~ a | b == TRUE, a = as.name(peakvar), b = as.name(valleyvar)))
-
-# calculates the difference in strain between the current value and the following element and prints result to new column called diff
-# adds NA in the end to keep correct vector lenght, this value will be given to the previous created dummy row.
-
-  calculate_straindiff <- list(diff = interp(~ append(diff(c), values = NA),
-                                             c = as.name(strainvar)))
-
-
-# filter for all rows were valley is true AND strain <= the threshold * the min strain value AND diff >= the increase * min strain value.
-  true_valleys <- list(interp(~ (a == TRUE &
-                                 b <= (thresh*min(b)) &
-                                 diff >= (incr*min(b))),
-
-                              a = as.name(valleyvar),
-                              b = as.name(strainvar)))
-
-# filters for the earliest peak fulfilling previous criteria.
-  earliest_valleys <- list(interp(~ a == min(a), a = as.name(timevar)))
-
-x <-  x %>%
-          filter_(.dots = peakvalley_true) %>%
-
-          mutate_(.dots = calculate_straindiff) %>%
-
-          group_by(id)  %>%
-
-          filter_(.dots = true_valleys) %>%
-
-          rename_(.dots = setNames("time", timevar)) %>%
-
-          filter_(.dots = earliest_valleys) %>%
-
-          select_(.dots = list("id", straintime)) %>%
-
-          ungroup()
-
-  return(x)
+  return(data)
 }

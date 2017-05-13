@@ -2,34 +2,31 @@
 % Please edit documentation in R/timePeakStrain.R
 \name{timePeakStrain}
 \alias{timePeakStrain}
-\title{Find time to true strain peaks using percentage criteria for circumferential/longitudinal strain}
+\title{Find the time corresponding to the peak strain value for a segment}
 \usage{
-timePeakStrain(x, strain, thresh, incr, position.firstStrainColumn)
+timePeakStrain(data, id.column, time.column, RR.as.perc = TRUE,
+  radial.strain = FALSE)
 }
 \arguments{
-\item{x}{dataframe containing the strain columns in a long format.}
+\item{data}{Dataframe with each strain segment in a separate column, the name
+of the strain columns must include "strain".}
 
-\item{strain}{the strain variable you want to mutate, written inside "".}
+\item{id.column}{Name of the id column in quotes.}
 
-\item{thresh}{percentage of the peak strain value that a valley has to reach to be
-considered a true valley.}
+\item{time.column}{Name of the time column in quotes.}
 
-\item{incr}{percentage of the peak strain value by which the strain increase between valley and the
-following peak has to reach.}
+\item{RR.as.perc}{Logical parameter, if TRUE time will be presented as percent
+of heart cycle.}
 
-\item{position.firstStrainColumn}{the index position for the first strain segment in the dataframe}
+\item{radial.strain}{Logical parameter, set to TRUE if using radial strain.}
 }
 \value{
-A dataframe with id and a straincolumn containing the time for the first peak
-fulfilling the criteria
+A dataframe with time to peak strain value for each patient and all
+segments.
 }
 \description{
-Find time to true strain peaks using percentage criteria for circumferential/longitudinal strain
+Find the time corresponding to the peak strain value for a segment
 }
 \examples{
-timePeakStrain(strain_data,
-"mas",
-thresh = 0.2,
-incr = -0.3,
-position.firstStrainColumn = 3)
+timeMinStrain(strain_data, "id", "time", RR.as.perc = TRUE)
 }
