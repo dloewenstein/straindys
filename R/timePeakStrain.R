@@ -38,6 +38,12 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
 
   time_as_rr_perc <- interp(~ a/max(a), a = as_name(time.column))
 
+  removeInfinite <- function(x) {
+    x[which(is.infinite(x))] <- NA
+
+    return(x)
+  }
+
   if(RR.as.perc) {
 
     data <- data %>%
@@ -47,17 +53,25 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
   }
 
   if (!radial.strain) {
-  data <- data %>%
+    data <- data %>%
 
-    rename_(.dots = setNames(list(time_variable), c("time"))) %>%
+      rename_(.dots = setNames(list(time_variable), c("time"))) %>%
 
-    group_by_(id_variable) %>%
+      group_by_(id_variable) %>%
 
-    mutate_at(.cols = vars(contains("strain")), .funs = funs(ifelse(. == min(.) & . <0, time, NA))) %>%
+      mutate_at(.cols = vars(contains("strain")),
+                .funs = funs(ifelse(. == min(.) & . < 0,
+                                    time,
+                                    NA))) %>%
 
-    summarise_at(.cols = vars(contains("strain")), min, na.rm = TRUE) %>%
+      summarise_at(.cols = vars(contains("strain")),
+                   min,
+                   na.rm = TRUE) %>%
 
-    ungroup()
+      mutate_at(.cols = vars(contains("strain")),
+                .funs = funs(removeInfinite(.))) %>%
+
+      ungroup()
 
   } else {
 
@@ -67,9 +81,17 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
 
       group_by_(id_variable) %>%
 
-      mutate_at(.cols = vars(contains("strain")), .funs = funs(ifelse(. == max(.) & . > 0, time, NA))) %>%
+      mutate_at(.cols = vars(contains("strain")),
+                .funs = funs(ifelse(. == max(.) & . > 0,
+                                    time,
+                                    NA))) %>%
 
-      summarise_at(.cols = vars(contains("strain")), min, na.rm = TRUE) %>%
+      summarise_at(.cols = vars(contains("strain")),
+                   min,
+                   na.rm = TRUE) %>%
+
+      mutate_at(.cols = vars(contains("strain")),
+                .funs = funs(removeInfinite(.))) %>%
 
       ungroup()
   }
