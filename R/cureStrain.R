@@ -65,7 +65,7 @@ cureStrain <- function(data, id.column) {
 
   # --------------------------------------------------------------------------
 
-  strain_columns <- which(grepl("strain", colnames(wb_clean)))
+  strain_columns <- which(grepl("strain", colnames(data)))
 
   strain_start <- strain_columns[1]
 
