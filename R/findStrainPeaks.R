@@ -86,5 +86,6 @@ findStrainPeaks <- function (straindata, position.firstStraincolumn) {
                                                 strain_peak)))
   }
 
+return(straindata)
 
   }
