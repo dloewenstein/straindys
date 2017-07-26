@@ -102,4 +102,6 @@ timeFirstPeak_points <- function (x, strain, thresh, incr, position.firstStrainC
 
     dplyr::ungroup()
 
+  return(x)
+
 }

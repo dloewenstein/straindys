@@ -86,6 +86,7 @@ cureStrain <- function(data, id.column) {
     dplyr::summarise_at(vars(cure), mean, na.rm=TRUE) %>%
     dplyr::ungroup()
 
+return(cure_data)
 on.exit(options(old_options))
 
   }
