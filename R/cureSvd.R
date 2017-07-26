@@ -8,9 +8,13 @@
 #' @param id.column name of the id column in quotes.
 #'
 #' @return Returns a dataframe with CURE value for each patient.
+#'
+#' @importFrom magrittr %>%
+#' @importFrom stats fft
+#'
 #' @export
 #'
-#' @examples cureSvd(data = strain_data, id.column = "id")
+#' @examples
 #'
 cureSvd <- function(data, id.column) {
 
@@ -27,12 +31,16 @@ cureSvd <- function(data, id.column) {
   # Libraries:
       # Requires: dplyr, svd.
 
-  require(dplyr)
 
-  require(lazyeval)
+  if (!class(data) == "data.frame" & !length(class(data)) == 1) {
+    stop("Check that your data is of class data.frame and only has one class
+associated with it")
+    }
 
-  if (sum(is.na(data)) >0) {stop("Trying to apply svd to data with NA will
-                                    result in an error.")}
+  if (sum(is.na(data)) >0) {
+stop("Trying to apply svd to data with NA will
+                                    result in an error.")
+    }
 
   if (!requireNamespace("dplyr", quietly = TRUE)) {
     stop("dplyr needed for this function to work. Please install/load it.",
@@ -46,7 +54,7 @@ cureSvd <- function(data, id.column) {
   }
 
 
-  options(stringsAsFactors = FALSE)
+  old_options <- options(stringsAsFactors = FALSE)
 
   # Extracts all unique identifiers.
 
@@ -56,21 +64,21 @@ cureSvd <- function(data, id.column) {
 
   cure_data <- data.frame()
 
-  id_variable <- interp(~ a, a = as_name(id.column))
+  id_variable <- lazyeval::interp(~ a, a = as_name(id.column))
 
-  filter_for_id <- interp(~ a == id_index[i], a = as_name(id.column))
+  filter_for_id <- lazyeval::interp(~ a == id_index[i], a = as_name(id.column))
 
   for(i in seq_along(id_index)){
 
     strain <- as.matrix(data %>%
 
-                    group_by_(id_variable) %>%
+                      dplyr::group_by_(id_variable) %>%
 
-                    filter_(filter_for_id) %>%
+                      dplyr::filter_(filter_for_id) %>%
 
-                    ungroup() %>%
+                      dplyr::ungroup() %>%
 
-                    select(contains("strain")))
+                      dplyr::select(contains("strain")))
 
 
     # Applies singular value decomposition on to the data.
@@ -119,4 +127,6 @@ cureSvd <- function(data, id.column) {
   colnames(cure_data) <- c(id.column, "cure")
 
   return(cure_data)
+
+  on.exit(options(old_options))
 }

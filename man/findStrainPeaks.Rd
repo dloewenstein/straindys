@@ -19,5 +19,5 @@ whether the corresponding strain value is a peak/valley or not
 Finds peaks and valleys in the strain dataframe
 }
 \examples{
-findStrainPeaks(straindata, position.firstStrainColumn = 3)
+
 }

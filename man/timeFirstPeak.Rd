@@ -27,9 +27,5 @@ fulfilling the criteria
 Find time to true strain peaks using percentage criteria for circumferential/longitudinal strain
 }
 \examples{
-timePeakStrain(strain_data,
-"mas",
-thresh = 0.2,
-incr = -0.3,
-position.firstStrainColumn = 3)
+
 }

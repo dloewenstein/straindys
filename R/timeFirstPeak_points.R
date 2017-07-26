@@ -11,20 +11,15 @@
 #'
 #' @return A dataframe with id and a straincolumn containing the time for the first peak
 #' fulfilling the criteria
+#'
+#' @importFrom magrittr %>%
+#' @importFrom stats setNames
+#'
 #' @export
 #'
 #' @examples
-#' timePeakStrain(strain_data,
-#' "mas",
-#' thresh = -0.9,
-#' incr = 3.0,
-#' position.firstStrainColumn = 3)
-
+#'
 timeFirstPeak_points <- function (x, strain, thresh, incr, position.firstStrainColumn) {
-
-  require(dplyr)
-
-  require(lazyeval)
 
   if (!requireNamespace("dplyr", quietly = TRUE)) {
     stop("dplyr needed for this function to work. Please install/load it.",
@@ -63,14 +58,14 @@ timeFirstPeak_points <- function (x, strain, thresh, incr, position.firstStrainC
 
   # creates variable calls
 
-  peak <- interp(~ a, a = as.name(peakvar))
-  valley <- interp(~ b, b = as.name(valleyvar))
-  strain <- interp(~ c, c = as.name(strainvar))
-  straintime <- interp(~ a, a = as.name(timevar))
+  peak <- lazyeval::interp(~ a, a = as.name(peakvar))
+  valley <- lazyeval::interp(~ b, b = as.name(valleyvar))
+  strain <- lazyeval::interp(~ c, c = as.name(strainvar))
+  straintime <- lazyeval::interp(~ a, a = as.name(timevar))
 
   # filters for all rows were peak or valley for the segment is true
 
-  peakvalley_true <- list(interp(~ a | b == TRUE, a = as.name(peakvar), b = as.name(valleyvar)))
+  peakvalley_true <- list(lazyeval::interp(~ a | b == TRUE, a = as.name(peakvar), b = as.name(valleyvar)))
 
   # calculates the difference in strain between the current value and the following element and prints result to new column called diff
   # adds NA in the end to keep correct vector lenght, this value will be given to the previous created dummy row.
@@ -80,7 +75,7 @@ timeFirstPeak_points <- function (x, strain, thresh, incr, position.firstStrainC
 
 
   # filter for all rows were valley is true AND strain <= the threshold * the min strain value AND diff >= the increase * min strain value.
-  true_valleys <- list(interp(~ (a == TRUE &
+  true_valleys <- list(lazyeval::interp(~ (a == TRUE &
                                    b <= thresh &
                                    diff >= incr),
 
@@ -88,24 +83,23 @@ timeFirstPeak_points <- function (x, strain, thresh, incr, position.firstStrainC
                               b = as.name(strainvar)))
 
   # filters for the earliest peak fulfilling previous criteria.
-  earliest_valleys <- list(interp(~ a == min(a), a = as.name(timevar)))
+  earliest_valleys <- list(lazyeval::interp(~ a == min(a), a = as.name(timevar)))
 
   x <-  x %>%
-    filter_(.dots = peakvalley_true) %>%
+   dplyr:: filter_(.dots = peakvalley_true) %>%
 
-    mutate_(.dots = calculate_straindiff) %>%
+    dplyr::mutate_(.dots = calculate_straindiff) %>%
 
-    group_by(id)  %>%
+    dplyr::group_by(id)  %>%
 
-    filter_(.dots = true_valleys) %>%
+    dplyr::filter_(.dots = true_valleys) %>%
 
-    rename_(.dots = setNames("time", timevar)) %>%
+    dplyr::rename_(.dots = setNames("time", timevar)) %>%
 
-    filter_(.dots = earliest_valleys) %>%
+    dplyr::filter_(.dots = earliest_valleys) %>%
 
-    select_(.dots = list("id", straintime)) %>%
+    dplyr::select_(.dots = list("id", straintime)) %>%
 
-    ungroup()
+    dplyr::ungroup()
 
-  return(x)
 }

@@ -21,6 +21,5 @@ Returns a dataframe with average CURE value for each patient.
 Circumferential uniformity ratio estimate (CURE) averaged over all timeframes.
 }
 \examples{
-cureStrain(data = strain_data, id.column = "id")
 
 }

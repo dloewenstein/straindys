@@ -28,5 +28,5 @@ segments.
 Find the time corresponding to the peak strain value for a segment
 }
 \examples{
-timeMinStrain(strain_data, "id", "time", RR.as.perc = TRUE)
+
 }

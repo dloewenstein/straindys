@@ -8,9 +8,13 @@
 #' @param id.column name of the id column in quotes.
 #'
 #' @return Returns a dataframe with average CURE value for each patient.
+#'
+#' @importFrom magrittr %>%
+#' @importFrom stats fft
+#'
 #' @export
 #'
-#' @examples cureStrain(data = strain_data, id.column = "id")
+#' @examples
 #'
 cureStrain <- function(data, id.column) {
 
@@ -26,9 +30,6 @@ cureStrain <- function(data, id.column) {
   # Libraries:
   # Requires: dplyr, lazeyval.
 
-  require(dplyr)
-
-  require(lazyeval)
 
   if (sum(is.na(data)) >0) {stop("Trying to apply CURE to data with NA will
                                  cause erroneous results.")}
@@ -45,7 +46,7 @@ cureStrain <- function(data, id.column) {
   }
 
 
-  options(stringsAsFactors = FALSE)
+  old_options <- options(stringsAsFactors = FALSE)
 
   # Function for calculating strain. -----------------------------------------
 
@@ -71,7 +72,7 @@ cureStrain <- function(data, id.column) {
 
   strain_end <- strain_columns[length(strain_columns)]
 
-  id_variable <- interp(~a, a = as_name(id.column))
+  id_variable <- lazyeval::interp(~a, a = as_name(id.column))
 
   data$cure <- c()
 
@@ -81,10 +82,10 @@ cureStrain <- function(data, id.column) {
   }
 
   cure_data <- data %>%
-    group_by_(id_variable) %>%
-    summarise_at(vars(cure), mean, na.rm=TRUE) %>%
-    ungroup()
+    dplyr::group_by_(id_variable) %>%
+    dplyr::summarise_at(vars(cure), mean, na.rm=TRUE) %>%
+    dplyr::ungroup()
 
-  return(cure_data)
+on.exit(options(old_options))
 
   }

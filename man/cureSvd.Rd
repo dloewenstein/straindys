@@ -21,6 +21,5 @@ Returns a dataframe with CURE value for each patient.
 Circumferential uniformity ratio estimate (CURE) computed by singular value decomposition (SVD).
 }
 \examples{
-cureSvd(data = strain_data, id.column = "id")
 
 }

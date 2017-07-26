@@ -11,15 +11,16 @@
 #'
 #' @return A dataframe with time to peak strain value for each patient and all
 #' segments.
+#'
+#' @importFrom magrittr %>%
+#' @importFrom stats setNames
+#'
 #' @export
 #'
-#' @examples timeMinStrain(strain_data, "id", "time", RR.as.perc = TRUE)
-
+#' @examples
+#'
 timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, radial.strain = FALSE) {
 
-  require(dplyr)
-
-  require(lazyeval)
 
   if (!requireNamespace("dplyr", quietly = TRUE)) {
     stop("dplyr needed for this function to work. Please install/load it.",
@@ -32,11 +33,11 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
          call. = FALSE)
   }
 
-  id_variable <- interp(~ a, a = as_name(id.column))
+  id_variable <- lazyeval::interp(~ a, a = as_name(id.column))
 
-  time_variable <- interp(~a, a = as_name(time.column))
+  time_variable <- lazyeval::interp(~a, a = as_name(time.column))
 
-  time_as_rr_perc <- interp(~ a/max(a), a = as_name(time.column))
+  time_as_rr_perc <- lazyeval::interp(~ a/max(a), a = as_name(time.column))
 
   removeInfinite <- function(x) {
     x[which(is.infinite(x))] <- NA
@@ -47,53 +48,53 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
   if(RR.as.perc) {
 
     data <- data %>%
-      group_by_(id_variable) %>%
-      mutate_(.dots = setNames(list(time_as_rr_perc), c(time.column))) %>%
-      ungroup()
+      dplyr::group_by_(id_variable) %>%
+      dplyr::mutate_(.dots = setNames(list(time_as_rr_perc), c(time.column))) %>%
+      dplyr::ungroup()
   }
 
   if (!radial.strain) {
     data <- data %>%
 
-      rename_(.dots = setNames(list(time_variable), c("time"))) %>%
+      dplyr::rename_(.dots = setNames(list(time_variable), c("time"))) %>%
 
-      group_by_(id_variable) %>%
+      dplyr::group_by_(id_variable) %>%
 
-      mutate_at(.cols = vars(contains("strain")),
+      dplyr::mutate_at(.vars = vars(contains("strain")),
                 .funs = funs(ifelse(. == min(.) & . < 0,
                                     time,
                                     NA))) %>%
 
-      summarise_at(.cols = vars(contains("strain")),
+      dplyr::summarise_at(.vars = vars(contains("strain")),
                    min,
                    na.rm = TRUE) %>%
 
-      mutate_at(.cols = vars(contains("strain")),
+      dplyr::mutate_at(.vars = vars(contains("strain")),
                 .funs = funs(removeInfinite(.))) %>%
 
-      ungroup()
+      dplyr::ungroup()
 
   } else {
 
     data <- data %>%
 
-      rename_(.dots = setNames(list(time_variable), c("time"))) %>%
+      dplyr::rename_(.dots = setNames(list(time_variable), c("time"))) %>%
 
-      group_by_(id_variable) %>%
+      dplyr::group_by_(id_variable) %>%
 
-      mutate_at(.cols = vars(contains("strain")),
+      dplyr::mutate_at(.vars = vars(contains("strain")),
                 .funs = funs(ifelse(. == max(.) & . > 0,
                                     time,
                                     NA))) %>%
 
-      summarise_at(.cols = vars(contains("strain")),
+      dplyr::summarise_at(.vars = vars(contains("strain")),
                    min,
                    na.rm = TRUE) %>%
 
-      mutate_at(.cols = vars(contains("strain")),
+      dplyr::mutate_at(.vars = vars(contains("strain")),
                 .funs = funs(removeInfinite(.))) %>%
 
-      ungroup()
+      dplyr::ungroup()
   }
 
 
