@@ -69,7 +69,7 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, p
     data <- cbind(data, strain_diff)
 
     data <- data %>%
-      dplyr::filter((!!strainN) < tresh &
+      dplyr::filter((!!strainN) < thresh &
                       .data$strain_diff >= incr &
                       .data$valley == TRUE) %>%
       dplyr::slice(1)
