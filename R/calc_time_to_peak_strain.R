@@ -8,7 +8,7 @@
 #' @param peak.criteria Which criteria to use for peak.
 #' @importFrom rlang !!
 #' @importFrom rlang .data
-#'
+#' @importFrom magrittr %>%
 #' @export
 #'
 #' @examples
