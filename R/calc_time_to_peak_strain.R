@@ -77,5 +77,9 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, p
     stop(print("peak.criteria has not been correctly specified, as of now first_true is the only criteria supported"), call. = FALSE)
   }
 
-  return(data[[time]])
+  if(data[[time]] == numeric(0)){
+    return(NA)
+  } else{
+    return(data[[time]])
+  }
 }
