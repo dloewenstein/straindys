@@ -60,7 +60,7 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, p
 
     data[peaks_index, "peak"] <- TRUE
 
-    data <- data[c(valleys_index, peaks_index, nrow(data)), ]
+    data <- data[sort(c(peaks_index, valleys_index, nrow(data))), ]
 
     strain_diff <- diff(data[[strain]])
 
@@ -77,7 +77,7 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, p
     stop(print("peak.criteria has not been correctly specified, as of now first_true is the only criteria supported"), call. = FALSE)
   }
 
-  if(is.null(dim(data[[time]]))){
+  if(length(data[[time]]) == 0){
     return(NA)
   } else{
     return(data[[time]])
