@@ -15,4 +15,5 @@ Imports: dplyr, lazyeval,
     magrittr,
     zoo,
     rlang
-Suggests: stringr
+Suggests: stringr,
+    tidyr
