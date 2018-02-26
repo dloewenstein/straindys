@@ -50,23 +50,23 @@ findStrainPeaks <- function (straindata, position.firstStraincolumn) {
 
           find_strain_valley <- lazyeval::interp(~ a %in% a[findValleys(a)-1],
 
-                                       a = as_name(strain_value))
+                                       a = lazyeval::as_name(strain_value))
 
           find_strain_peak   <- lazyeval::interp(~ a %in% a[findPeaks(a)-1],
 
-                                       a = as_name(strain_value))
+                                       a = lazyeval::as_name(strain_value))
 
           set_valley_false_time_zero <- lazyeval::interp(~ ifelse(time == 0,
                                                         FALSE,
                                                         a),
 
-                                               a = as_name(strain_valley))
+                                               a = lazyeval::as_name(strain_valley))
 
           set_peak_true_time_zero <- lazyeval::interp(~ ifelse(time == 0,
                                                       TRUE,
                                                      a),
 
-                                            a = as_name(strain_peak))
+                                            a = lazyeval::as_name(strain_peak))
 
           straindata <- straindata %>%
                   dplyr::mutate_(.dots = setNames(list(find_strain_valley,

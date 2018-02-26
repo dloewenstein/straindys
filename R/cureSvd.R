@@ -64,9 +64,9 @@ stop("Trying to apply svd to data with NA will
 
   cure_data <- data.frame()
 
-  id_variable <- lazyeval::interp(~ a, a = as_name(id.column))
+  id_variable <- lazyeval::interp(~ a, a = lazyeval::as_name(id.column))
 
-  filter_for_id <- lazyeval::interp(~ a == id_index[i], a = as_name(id.column))
+  filter_for_id <- lazyeval::interp(~ a == id_index[i], a = lazyeval::as_name(id.column))
 
   for(i in seq_along(id_index)){
 
@@ -78,7 +78,7 @@ stop("Trying to apply svd to data with NA will
 
                       dplyr::ungroup() %>%
 
-                      dplyr::select(contains("strain")))
+                      dplyr::select(dplyr::contains("strain")))
 
 
     # Applies singular value decomposition on to the data.

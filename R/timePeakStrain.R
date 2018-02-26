@@ -33,11 +33,11 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
          call. = FALSE)
   }
 
-  id_variable <- lazyeval::interp(~ a, a = as_name(id.column))
+  id_variable <- lazyeval::interp(~ a, a = lazyeval::as_name(id.column))
 
-  time_variable <- lazyeval::interp(~a, a = as_name(time.column))
+  time_variable <- lazyeval::interp(~a, a = lazyeval::as_name(time.column))
 
-  time_as_rr_perc <- lazyeval::interp(~ a/max(a), a = as_name(time.column))
+  time_as_rr_perc <- lazyeval::interp(~ a/max(a), a = lazyeval::as_name(time.column))
 
   removeInfinite <- function(x) {
     x[which(is.infinite(x))] <- NA
@@ -60,17 +60,17 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
 
       dplyr::group_by_(id_variable) %>%
 
-      dplyr::mutate_at(.vars = vars(contains("strain")),
-                .funs = funs(ifelse(. == min(.) & . < 0,
+      dplyr::mutate_at(.vars = dplyr::vars(dplyr::contains("strain")),
+                .funs = dplyr::funs(ifelse(. == min(.) & . < 0,
                                     time,
                                     NA))) %>%
 
-      dplyr::summarise_at(.vars = vars(contains("strain")),
+      dplyr::summarise_at(.vars = dplyr::vars(dplyr::contains("strain")),
                    min,
                    na.rm = TRUE) %>%
 
-      dplyr::mutate_at(.vars = vars(contains("strain")),
-                .funs = funs(removeInfinite(.))) %>%
+      dplyr::mutate_at(.vars = dplyr::vars(dplyr::contains("strain")),
+                .funs = dplyr::funs(removeInfinite(.))) %>%
 
       dplyr::ungroup()
 
@@ -82,17 +82,17 @@ timePeakStrain <- function (data, id.column, time.column, RR.as.perc = TRUE, rad
 
       dplyr::group_by_(id_variable) %>%
 
-      dplyr::mutate_at(.vars = vars(contains("strain")),
-                .funs = funs(ifelse(. == max(.) & . > 0,
+      dplyr::mutate_at(.vars = dplyr::vars(dplyr::contains("strain")),
+                .funs = dplyr::funs(ifelse(. == max(.) & . > 0,
                                     time,
                                     NA))) %>%
 
-      dplyr::summarise_at(.vars = vars(contains("strain")),
+      dplyr::summarise_at(.vars = dplyr::vars(dplyr::contains("strain")),
                    min,
                    na.rm = TRUE) %>%
 
-      dplyr::mutate_at(.vars = vars(contains("strain")),
-                .funs = funs(removeInfinite(.))) %>%
+      dplyr::mutate_at(.vars = dplyr::vars(dplyr::contains("strain")),
+                .funs = dplyr::funs(removeInfinite(.))) %>%
 
       dplyr::ungroup()
   }

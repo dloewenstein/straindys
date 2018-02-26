@@ -72,7 +72,7 @@ cureStrain <- function(data, id.column) {
 
   strain_end <- strain_columns[length(strain_columns)]
 
-  id_variable <- lazyeval::interp(~a, a = as_name(id.column))
+  id_variable <- lazyeval::interp(~a, a = lazyeval::as_name(id.column))
 
   data$cure <- c()
 
@@ -83,7 +83,7 @@ cureStrain <- function(data, id.column) {
 
   cure_data <- data %>%
     dplyr::group_by_(id_variable) %>%
-    dplyr::summarise_at(vars(cure), mean, na.rm=TRUE) %>%
+    dplyr::summarise_at(dplyr::vars(cure), mean, na.rm=TRUE) %>%
     dplyr::ungroup()
 
 return(cure_data)

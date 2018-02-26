@@ -58,20 +58,20 @@ timeFirstPeak_points <- function (x, strain, thresh, incr, position.firstStrainC
 
   # creates variable calls
 
-  peak <- lazyeval::interp(~ a, a = as.name(peakvar))
-  valley <- lazyeval::interp(~ b, b = as.name(valleyvar))
-  strain <- lazyeval::interp(~ c, c = as.name(strainvar))
-  straintime <- lazyeval::interp(~ a, a = as.name(timevar))
+  peak <- lazyeval::interp(~ a, a = lazyeval::as_name(peakvar))
+  valley <- lazyeval::interp(~ b, b = lazyeval::as_name(valleyvar))
+  strain <- lazyeval::interp(~ c, c = lazyeval::as_name(strainvar))
+  straintime <- lazyeval::interp(~ a, a = lazyeval::as_name(timevar))
 
   # filters for all rows were peak or valley for the segment is true
 
-  peakvalley_true <- list(lazyeval::interp(~ a | b == TRUE, a = as.name(peakvar), b = as.name(valleyvar)))
+  peakvalley_true <- list(lazyeval::interp(~ a | b == TRUE, a = lazyeval::as_name(peakvar), b = lazyeval::as_name(valleyvar)))
 
   # calculates the difference in strain between the current value and the following element and prints result to new column called diff
   # adds NA in the end to keep correct vector lenght, this value will be given to the previous created dummy row.
 
-  calculate_straindiff <- list(diff = interp(~ append(diff(c), values = NA),
-                                             c = as.name(strainvar)))
+  calculate_straindiff <- list(diff = lazyeval::interp(~ append(diff(c), values = NA),
+                                             c = lazyeval::as_name(strainvar)))
 
 
   # filter for all rows were valley is true AND strain <= the threshold * the min strain value AND diff >= the increase * min strain value.
@@ -79,11 +79,11 @@ timeFirstPeak_points <- function (x, strain, thresh, incr, position.firstStrainC
                                    b <= thresh &
                                    diff >= incr),
 
-                              a = as.name(valleyvar),
-                              b = as.name(strainvar)))
+                              a = lazyeval::as_name(valleyvar),
+                              b = lazyeval::as_name(strainvar)))
 
   # filters for the earliest peak fulfilling previous criteria.
-  earliest_valleys <- list(lazyeval::interp(~ a == min(a), a = as.name(timevar)))
+  earliest_valleys <- list(lazyeval::interp(~ a == min(a), a = lazyeval::as_name(timevar)))
 
   x <-  x %>%
    dplyr:: filter_(.dots = peakvalley_true) %>%
