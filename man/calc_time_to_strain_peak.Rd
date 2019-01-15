@@ -5,10 +5,11 @@
 \title{Calculate time to peak strain}
 \usage{
 calc_time_to_strain_peak(data, strain, time, thresh = 0, incr = 0,
-  peak.criteria = "first_true")
+  type = c("circumferential", "radial"), peak.criteria = c("units",
+  "percent"), ...)
 }
 \arguments{
-\item{data}{A dataframe.}
+\item{data}{A \code{data.frame}}
 
 \item{strain}{Name of strain column, wrapped in "".}
 
@@ -18,11 +19,10 @@ calc_time_to_strain_peak(data, strain, time, thresh = 0, incr = 0,
 
 \item{incr}{Optional, difference between the sought after peak and the following peak of opposite direction.}
 
+\item{type}{Type of strain, circumferential or radial.}
+
 \item{peak.criteria}{Which criteria to use for peak.}
 }
 \description{
 Calculate time to peak strain
-}
-\examples{
-
 }
