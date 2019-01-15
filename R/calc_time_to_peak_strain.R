@@ -4,6 +4,7 @@
 #' @param strain Name of strain column, wrapped in "".
 #' @param time Name of time column, wrapped in "".
 #' @param thresh Optional, threshold that the strain peak has to pass.
+#' @param type Type of strain, circumferential or radial.
 #' @param incr Optional, difference between the sought after peak and the following peak of opposite direction.
 #' @param peak.criteria Which criteria to use for peak.
 #' @importFrom rlang !!
@@ -11,7 +12,6 @@
 #' @importFrom magrittr %>%
 #' @export
 #'
-#' @examples
 #'
 calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0,
                                      type = c("circumferential", "radial"),
@@ -55,9 +55,9 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0,
       endrow <- setNames(data.frame(NA, 0, TRUE, FALSE), c(time, strain, "valley", "peak"))
   }
 
-    valleys_index <- find_valleys(data[[strain]])-1
+    valleys_index <- find_valleys(data[[strain]]) - 1
 
-    peaks_index <- find_peaks(data[[strain]])-1
+    peaks_index <- find_peaks(data[[strain]]) - 1
 
     data <- cbind(data, data.frame(valley = FALSE, peak = FALSE))
 
