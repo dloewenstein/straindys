@@ -1,6 +1,6 @@
 #' Calculate time to peak strain
 #'
-#' @param data A dataframe.
+#' @param data A \code{data.frame}
 #' @param strain Name of strain column, wrapped in "".
 #' @param time Name of time column, wrapped in "".
 #' @param thresh Optional, threshold that the strain peak has to pass.
@@ -13,9 +13,14 @@
 #'
 #' @examples
 #'
-calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, peak.criteria = "first_true"){
+calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0,
+                                     type = c("circumferential", "radial"),
+                                     peak.criteria = c("units", "percent"),
+                                     ...){
+    type <- match.arg(type)
+    peak.criteria <- match.arg(peak.criteria)
 
-  if(!requireNamespace("rlang", quietly = TRUE)){
+  if (!requireNamespace("rlang", quietly = TRUE)) {
     stop("rlang package needs to be installed")
   }
 
@@ -23,9 +28,8 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, p
 
   data <- data[, c(time, strain)]
 
-  find_valleys <- function (x, thresh = 0) {
-    pks <- which(diff(sign(diff(x, na.pad = FALSE)), na.pad = FALSE) >
-                   0) + 2
+  find_valleys <- function(x, thresh = 0) {
+    pks <- which(diff(sign(diff(x, na.pad = FALSE)), na.pad = FALSE) > 0) + 2
     if (!missing(thresh)) {
       if (sign(thresh) > 0)
         thresh <- -thresh
@@ -34,9 +38,8 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, p
     else pks
   }
 
-  find_peaks <- function (x, thresh = 0) {
-    pks <- which(diff(sign(diff(x, na.pad = FALSE)), na.pad = FALSE) <
-                   0) + 2
+  find_peaks <- function(x, thresh = 0) {
+    pks <- which(diff(sign(diff(x, na.pad = FALSE)), na.pad = FALSE) < 0) + 2
     if (!missing(thresh)) {
       if (sign(thresh) < 0)
         thresh <- -thresh
@@ -45,8 +48,12 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, p
     else pks
   }
 
-  if(peak.criteria == "first_true"){
-    endrow <- setNames(data.frame(NA, 0, FALSE, TRUE), c(time, strain, "valley", "peak"))
+  if (type == "circumferential") {
+      endrow <- setNames(data.frame(NA, 0, FALSE, TRUE), c(time, strain, "valley", "peak"))
+  }
+  if (type == "radial") {
+      endrow <- setNames(data.frame(NA, 0, TRUE, FALSE), c(time, strain, "valley", "peak"))
+  }
 
     valleys_index <- find_valleys(data[[strain]])-1
 
@@ -68,16 +75,55 @@ calc_time_to_strain_peak <- function(data, strain, time, thresh = 0, incr = 0, p
 
     data <- cbind(data, strain_diff)
 
-    data <- data %>%
-      dplyr::filter((!!strainN) < thresh &
-                      .data$strain_diff >= incr &
-                      .data$valley == TRUE) %>%
-      dplyr::slice(1)
-  } else {
-    stop(print("peak.criteria has not been correctly specified, as of now first_true is the only criteria supported"), call. = FALSE)
-  }
+    if (type == "circumferential") {
+        if (peak.criteria == "units") {
+            data <- data %>%
+                dplyr::filter((!!strainN) <= thresh &
+                                  .data$strain_diff >= incr &
+                                  .data$valley == TRUE) %>%
+                dplyr::slice(1)
+        }
 
-  if(length(data[[time]]) == 0){
+        if (peak.criteria == "percent") {
+
+            .MIN_STRAIN <- min(data[[strain]], na.rm = TRUE)
+
+            .PERC_THRESH <- .MIN_STRAIN * thresh
+            .PERC_INCR   <- abs(.MIN_STRAIN) * incr
+
+            data <- data %>%
+                dplyr::filter((!!strainN) <= .PERC_THRESH &
+                                  .data$strain_diff >= .PERC_INCR &
+                                  .data$valley == TRUE) %>%
+                dplyr::slice(1)
+        }
+    }
+
+    if (type == "radial") {
+        if (peak.criteria == "units") {
+            data <- data %>%
+                dplyr::filter((!!strainN) >= thresh &
+                                  .data$strain_diff <= incr &
+                                  .data$peak == TRUE) %>%
+                dplyr::slice(1)
+        }
+
+        if (peak.criteria == "percent") {
+
+            .MAX_STRAIN <- max(data[[strain]], na.rm = TRUE)
+
+            .PERC_THRESH <- .MAX_STRAIN * thresh
+            .PERC_INCR   <- -(.MAX_STRAIN) * incr
+
+            data <- data %>%
+                dplyr::filter((!!strainN) >= .PERC_THRESH &
+                                  .data$strain_diff <= .PERC_INCR &
+                                  .data$peak == TRUE) %>%
+                dplyr::slice(1)
+        }
+    }
+
+  if (length(data[[time]]) == 0) {
     return(NA)
   } else{
     return(data[[time]])
