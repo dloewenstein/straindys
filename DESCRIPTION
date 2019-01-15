@@ -2,8 +2,7 @@ Package: straindys
 Type: Package
 Title: A collection of tools to calculate different strain and dyssynchrony metrcis for CMR FT
 Version: 0.1.0
-Author: Daniel Loewenstein
-Maintainer: The package maintainer <loewenstein.daniel@gmail.com>
+Authors@R: person("Daniel", "Loewenstein", email = "loewenstein.daniel@gmail.com", role = c("aut", "cre"))
 Description: A grewing collection of tools to help faciliatate calculation of newly
     developed strain and dyssynchrony metrics. Tools both for global dyssynchrony
     as well as regional. Built for use with CMR FT, and the Medviso Segment software.
